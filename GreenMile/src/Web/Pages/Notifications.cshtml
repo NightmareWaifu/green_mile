@@ -1,0 +1,105 @@
+@page
+@using Models
+@model Web.Pages.NotificationsModel
+
+<main class="pt-50 row">
+    <div class="col-2"></div>
+    <div class="col-8">
+        <header>
+            <h4>
+                <span id="totalNotifications">
+                    @(Model.Notifications is not null
+                        ? Model.Notifications.Count()
+                        : "Error")
+                </span>
+                Notifications |
+                <span id="unreadNotifications">
+                    @(Model.Notifications is not null
+                        ? Model.Notifications.Count(n => n.Read == false)
+                        : "Error")
+                </span>
+                Unread
+            </h4>
+        </header>
+        <div class="d-flex gap-3">
+            <form method="post" asp-page-handler="ReadAll">
+                <button class="btn my-3" type="submit">
+                    <i class="fa fa-eye"></i>
+                    Read all
+                </button>
+            </form>
+            <form method="post" asp-page-handler="DeleteRead">
+                <button class="btn my-3" type="submit">
+                    <i class="fa fa-trash"></i>
+                    Delete read
+                </button>
+            </form>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>System</th>
+                    <th>Message</th>
+                    <th>Read</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                @if (
+                Model.Notifications is not null
+                && Model.Notifications.Count() > 0
+                )
+                {
+                    foreach (Notification notif in Model.Notifications)
+                    {
+                        <tr id="notification_@notif.Id">
+                            <td>@notif.System</td>
+                            <td>@notif.Message</td>
+                            <td id="notificationRead_@notif.Id">@(notif.Read ? "Read" : "Unread")</td>
+                            <td>@notif.Date</td>
+                            <td id="notificationActions_@notif.Id">
+                                <button class="btn" id="notifBtn_@notif.Id" data-bs-toggle="modal"
+                                    data-bs-target="#notification_@notif.Id" onclick="readNotification(this)">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                @if (@notif.Read)
+                                {
+                                    <button class="btn" onclick="deleteNotification(this)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                        <div class="modal fade" id="notification_@notif.Id" tabindex="-1"
+                            aria-labelledby="notification_@(notif.Id)Label" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="notification_@(notif.Id)Label">@notif.System
+                                            Notification</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @notif.Message
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <tr id="noNotification">
+                        <td colspan="5">No notifications yet.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-2"></div>
+</main>

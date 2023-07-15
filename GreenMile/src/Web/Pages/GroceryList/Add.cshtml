@@ -1,0 +1,184 @@
+﻿@page
+@model Web.Pages.GroceryList.AddModel
+@{
+}
+
+
+<main class="main pages">
+    <div class="page-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 m-auto">
+                    <div class="row">
+                        <div class="col-xl-12" style="max-width: 600px; margin: 0 auto;">
+                            <div class="login_wrap widget-taber-content background-white">
+                                <div class="padding_eight_all bg-white">
+                                    <div class="heading_s1" style="margin-top:100px; margin-bottom: 30px;">
+                                        <h1 class="mb-5">Add item to grocery list</h1>
+
+                                    </div>
+                                    <div asp-validation-summary="All" class="text-danger"></div>
+                                    <form method="post" enctype="multipart/form-data">
+                                        <div asp-validation-summary="All" class="text-danger"></div>
+
+     <input type="file" accept="image/*" class="form-control" onchange="showImgPreview(this)" asp-for="GroceryUiState.Image"/>
+                    <br />
+                                        <img id="imgPreview" class="rounded-circle" style="clip-path:circle();height:250px;width:300px;object-fit:cover;border-radius:50%; overflow: hidden;margin-top: 30px" src="https://www.pinclipart.com/picdir/big/86-862588_mobi-food-logo-gif-clipart.png" />
+
+                                        <div class="form-group">
+                                            <label class="col-sm-2 col-form-label" asp-for="GroceryUiState.Name"></label>
+                                            <div class="col-sm-10">
+                                                <input class="form-control" asp-for="GroceryUiState.Name" />
+                                                <span asp-validation-for="GroceryUiState.Name" class="text-danger"></span>
+                                            </div>
+                                        </div>
+
+                                        Description & Extra Information<br />
+                                        <textarea class="form-control" style="height:100%;" asp-for="GroceryUiState.Description" rows="7" placeholder="Description for your item" required></textarea>
+                                        <button class="btn btn-primary" type="button" onclick="generate();return false" style="margin-top: 20px;" id="genimg">Generate Grocery Description</button>
+                                        <div class="row mb-3" style="margin-top: 50px; margin-bottom: 1000px;">
+<label class="col-sm-2 col-form-label" asp-for="GroceryUiState.Category">
+</label>
+<div>
+@Html.DropDownListFor(m => m.GroceryUiState.Category,
+new SelectList(Model.Categories, "Id", "Name"), "-- Select --",
+new {@class = "form-select"})
+<span asp-validation-for="GroceryUiState.Category"
+class="text-danger"></span>
+</div>
+</div>
+
+
+                                      <div style="margin-top: 40px;">Quantity</div>
+                        <br />
+                                        <div class="detail-extralink mr-15" style="margin-bottom:30px; ">
+                                            <div class="detail-qty border radius">
+                                                <a onclick="down()" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                                <span id="value" class="qty-val">1</span>
+                                                <a  onclick="up()" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" value = "1" asp-for="GroceryUiState.Quantity"/>
+                                  
+
+
+                                        <div class="form-group mb-30">
+                                            <button type="submit" value="Add" class="btn btn-fill-out btn-block hover-up font-weight-bold">Submit</button>
+                                        </div>
+                                        <p class="font-xs text-muted"><strong>Note:</strong>Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our privacy policy</p>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+	function showImgPreview(input) {
+		if (input.files[0]) {
+			var uploadimg = new FileReader();
+			uploadimg.onload = function (displayimg) {
+				$("#imgPreview").attr('src', displayimg.target.result);
+			}
+			uploadimg.readAsDataURL(input.files[0]);
+		}
+	}
+</script>
+
+<script>
+    function up() {
+        document.getElementById("GroceryUiState_Quantity").value =  parseInt(document.getElementById("GroceryUiState_Quantity").value) + 1
+        document.getElementById("value").textContent = document.getElementById("GroceryUiState_Quantity").value
+    }
+
+    function down() {
+        document.getElementById("GroceryUiState_Quantity").value = Math.max(1, document.getElementById("GroceryUiState_Quantity").value - 1)
+        document.getElementById("value").textContent = document.getElementById("GroceryUiState_Quantity").value
+    }
+</script>
+<script>
+
+    const fileInput = document.getElementById("GroceryUiState_Image")
+    fileInput.addEventListener("change", (event) => {
+     
+    const file = event.target.files[0]
+    if(!file) {
+    return;
+    }
+        const formData = new FormData();
+        formData.append("file", file)
+
+        fetch("/api/google", {
+            method: "POST",
+            body: formData
+        }).then((response) => {
+            return response.text()
+        }).then((data) => {
+            document.getElementById("GroceryUiState_Name").value = data
+        }).catch((error) => {
+            document.getElementById("GroceryUiState_Name").value = "Unknown"
+        })
+
+    })
+
+
+</script>
+<script>
+    async function generate() {
+        document.getElementById("genimg").disabled = true
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/openAIHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+
+
+        async function start(callback) {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+                callback()
+
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 4999);
+            }
+        };
+
+        connection.onclose(async () => {
+            
+        });
+
+        // Start the connection.
+        start(() => {
+            connection.stream("queryGPT", "Generate extra information or description about a" + document.getElementById("GroceryUiState_Name").value + "in the context of a grocery list that helps the user know that is the item. Don't include anything unncessary but make it quite descriptive.").subscribe({
+
+
+                next: (item) => {
+                    var des = document.getElementById("GroceryUiState_Description")
+
+                    des.value += item.replace("\n", " ")
+                },
+                complete: () => {
+                    console.log("End")
+
+                },
+                error: (err) => {
+                    console.log(err);
+                },
+
+            })
+        });
+
+         document.getElementById("genimg").disabled = false
+
+    }
+    
+
+   
+</script>
+

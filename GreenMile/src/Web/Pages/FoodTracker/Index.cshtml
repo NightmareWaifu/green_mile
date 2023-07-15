@@ -1,0 +1,550 @@
+﻿@page
+@model Web.Pages.FoodTracker.IndexModel
+<style>
+    
+    .delete:hover{
+        background-color:#e11d48 !important;
+    }
+    .deleteitem{
+           font-size: 13px !important;
+    font-weight: 800 !important;
+    padding: 12px 30px !important;
+    color: #ffffff !important;
+    border: none !important;
+    background-color: #f43f5e !important;
+    border: 1px solid red !important;
+    border-radius: 4px !important;
+    }
+     .deleteitem:hover{
+           background-color: #e11d48 !important;
+    }
+</style>
+
+@*<h1>@Model.Name</h1>
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Description</th>
+            <th>ExpiryDate</th>
+            <th>Weight</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Carbon Foodprint</th> 
+        </tr>
+    </thead>
+    <tbody>
+      
+        
+        @{
+            @foreach (var item in Model.FoodItemList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Description</td>
+                    <td>@item.ExpiryDate</td>
+                    <td>@item.Weight</td>
+                    <td>@item.Category</td>
+                    <td>@item.Status</td>
+                    <td>@item.CarbonFootprint</td>
+                    <td>
+                        <form class="mt-3" method="post">
+                            <input type="number" value="@item.Id" asp-for="Id" hidden />
+                             <input type="text" value="delete" asp-for="action_type" hidden />
+                            <button class="btn btn-primary" type="submit">
+                                Delete
+                            </button>
+                        </form>
+                       
+                        
+                            <a asp-page="/FoodTracker/Update" asp-route-id="@item.Id" >
+                                Update
+                            </a>
+                       
+                    </td>
+                </tr>
+                
+            }
+        }
+    </tbody>
+</table>
+*@
+ 
+ 
+  <!--End header-->
+   
+
+  <main class="main">
+        <div class="page-header mt-30 mb-50">
+            <div class="container">
+                <div class="row">
+                      <div class="col-xl-11">
+                          <input type="text" class="form-control" id="foodname"/>
+                      </div>
+                      <div class="col-xl-1">
+                          <button type="button" class="btn btn-primary" onclick="searchfood(document.getElementById('foodname').value)">Search</button>
+                      </div>
+                </div>
+                   <br/>
+                <div class="row" id="output" ></div>
+               
+                <br/>
+                <div class="archive-header">
+                    <div class="row align-items-center">
+                        <div class="col-xl-3">
+                            <h1 class="mb-15">Inventory</h1>
+                            <div class="breadcrumb">
+                                <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                                <span></span> Shop <span></span> Inventory
+                            </div>
+                        </div>
+                       <div class="col-xl-9 text-end d-none d-xl-block">
+                            <ul class="tags-list">
+                                <li class="hover-up">
+                                    <a href="#"><i class="fi-rs-lettuce"></i>Vegetable</a>
+                                </li>
+                                <li class="hover-up active">
+                                    <a href="#"><i class="fi-rs-steak"></i>Meat</a>
+                                </li>
+                                <li class="hover-up">
+                                    <a href="#"><i class="fi-rs-cheese"></i>Dairy</a>
+                                </li>
+                                <li class="hover-up">
+                                    <a href="#"><i class="fi-rs-snowflake"></i>Frozen</a>
+                                </li>
+                                <li class="hover-up mr-0">
+                                    <a href="#"><i class="fi-rs-canned-food"></i>Canned</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container mb-30">
+            <div class="row">
+                <div class="col-12">
+                    <div class="shop-product-fillter">
+                        <div class="totall-product">
+                            <p>You have<strong class="text-brand"> @Model.Count</strong> items in your inventory</p>
+                        </div>
+                        <div class="sort-by-product-area">
+                            <div class="sort-by-cover mr-10">
+                                <div class="sort-by-product-wrap">
+                                    <div class="sort-by">
+                                        <span><i class="fi-rs-apps"></i>Sort by:</span>
+                                    </div>
+                                    <div class="sort-by-dropdown-wrap">
+                                        <span> 50 <i class="fi-rs-angle-small-down"></i></span>
+                                    </div>
+                                </div>
+                                <div class="sort-by-dropdown">
+                                    <ul>
+                                        <li><a class="active" href="#">Expiry Date</a></li>
+                                        <li><a href="#">Weight</a></li>
+                                        <li><a href="#">Status</a></li>
+                                        <li><a href="#">Carbon Foodprint</a></li>
+                                        <li><a href="#">All</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                           @* <div class="sort-by-cover mr-10" >
+                                
+                                <div class="sort-by-product-wrap"  style="background-color:#3BB77E;" >
+                                     
+                                     <div class="sort-by">
+                                        <a asp-page="/FoodTracker/AddFoodItem" style="color:white;" >Add Food Item</a>
+                                    </div>
+
+                               
+                                </div>
+                            </div>*@
+                            <a class="btn btn-primary" asp-page="/FoodTracker/AddFoodItem" style="font-size:12px;"> Add Food </a>
+                            <a class="btn btn-primary" asp-page="/FoodTracker/Statistic" style="font-size:12px;">View Report </a>
+
+                        </div>
+                    </div>
+                    <div class="row product-grid">
+                        <table class="table mt-3">
+    
+                            
+                        <!--end product card-->
+                        @{
+                            @foreach(var item in Model.FoodItemList)
+                            {
+                                <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                                <div class="product-cart-wrap mb-30">
+                                    <div class="product-img-action-wrap">
+                                        <div class="product-img product-img-zoom">
+                                            <a href="">
+                                                <img class="default-img" src="@item.ImageFilePath" alt="" />
+                                                <img class="hover-img" src="@item.ImageFilePath" alt="" />
+                                            </a>
+                                        </div>
+                                        <div class="product-action-1">
+                                            <a aria-label="Edit My FoodItem" class="action-btn" asp-page="/FoodTracker/Update" asp-route-id="@item.Id"><i
+                                                class="fi-rs-edit"></i></a>
+                                            <a aria-label="View" class="action-btn" data-bs-toggle="modal" data-bs-target="#quickViewModal@(item.Id)"><i class="fi-rs-eye"></i></a>
+                                             <a aria-label="Delete" class="action-btn"  data-bs-toggle="modal" data-bs-target="#deleteModal@(item.Id)">
+                                                    <i class="fi-rs-trash"></i>
+                                                   </a>
+                                          
+                                           
+                                        </div>
+                                        <div class="product-badges product-badges-position product-badges-mrg">
+                                           
+                                                @if(@item.Status == true)
+                                                {
+                                                     <span class="new">Fresh</span>
+                                                }else{
+                                                     <span class="new" style="background-color:red;">Expired</span>
+                                                }
+                                            </div>
+                                    </div>
+                                    <div class="product-content-wrap">
+                                        <div class="product-category">
+                                        <span class="badge bg-secondary">@item.Category</span>
+                                           
+                                        </div>
+                                        <h2><a href="">@item.Name</a></h2>
+                                       
+                                    <div>
+                                          
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Delete -->
+                             <div class="modal fade custom-modal" id="deleteModal@(item.Id)" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                            
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                       
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        Are you sure you want to delete @item.Name ?
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <form class="mt-3" method="post">
+                                                  <input type="number" value="@item.Id" asp-for="Id" hidden />
+                                                   <input type="text" value="delete" asp-for="action_type" hidden />
+                                                
+                                                   <button  class="btn btn-danger deleteitem" type="submit">
+                                                    Delete
+                                                   </button>
+                                             </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                
+                            </div>
+                            <!-- Quick view -->
+                            <div class="modal fade custom-modal" id="quickViewModal@(item.Id)" tabindex="-1"
+                            aria-labelledby="quickViewModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
+                                                    <div class="detail-gallery">
+
+                                                        <!-- MAIN SLIDES -->
+                                                        <div class="product-image-slider">
+                                                                <figure class="border-radius-10">
+                                                                    <img src="@item.ImageFilePath" alt="product image" />
+                                                                </figure>
+                                                        </div>
+                                                        <!-- THUMBNAILS
+                                                                                    <div class="slider-nav-thumbnails">
+                                                                                    <div><img src="" alt="product image" /></div>
+                                                                                    <div><img src="assets/imgs/shop/thumbnail-4.jpg" alt="food image" /></div>
+                                                                                    </div> -->
+                                                </div>
+                                                    <!-- End Gallery -->
+                                            </div>
+                                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                                    <div class="detail-info pr-30 pl-30">
+                                                      @if(@item.Status == true)
+                                                        {
+                                                              <span class="stock-status in-stock"> Fresh </span>
+                                                             
+                                                        }else{
+                                                             <span class="new" style="background-color:red;">Expired</span>
+                                                        }
+                                                        @if(@item.IsCustom == true){
+                                                            <span class="stock-status in-stock" style="background-color:#bae6fd;color:#60a5fa;"> Custom </span>
+                                                        }
+                                                        <div class="row g-0">
+                                                          <div class="col-sm-6 col-md-8">
+                                                           <h3 class="title-detail">
+                                                                <a href="" class="text-heading">@item.Name</a>
+                                                             </h3>
+                                                          </div>
+                                                          <div class="col-6 col-md-4">
+                                                           <div class="detail-qty border radius" style="max-width:200px;">
+
+                                                                <span class="qty-val">Qty: @item.Quantity</span>
+
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                                                                             
+
+                                                        <!--
+                                                                <div class="product-detail-rating">
+
+                                                                    <div class="product-rate-cover text-end">
+                                                                        <div class="product-rate d-inline-block">
+                                                                            <div class="product-rating" style="width: 90%"></div>
+                                                                        </div>
+                                                                        <span class="font-small ml-5 text-muted"> (32 reviews)</span>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div class="clearfix product-price-cover">
+                                                                    <div class="product-price primary-color float-left">
+                                                                        <span class="current-price text-brand">$38</span>
+                                                                        <span>
+                                                                            <span class="save-price font-md color3 ml-15">26% Off</span>
+                                                                            <span class="old-price font-md ml-15">$52</span>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                -->
+                                                        <div class="food-description">
+                                                            <p>
+                                                               <span class="badge bg-secondary">@item.Category</span>
+                                                               <br>
+                                                               <br>
+                                                                @item.Description
+                                                                Food is any substance consumed to provide nutritional support for the body. 
+                                                                It is usually of plant or animal origin, and contains essential nutrients such as carbohydrates, fats, proteins, vitamins, or minerals.
+                                                                Food can be consumed raw or cooked, and can be processed or unprocessed.
+                                                            </p>
+                                                        </div>
+                                                        <br>
+                                                        <div class="detail-extralink mb-30">
+                                                          
+                                                            <div class="product-extra-link2">
+                                                                <button type="submit" class="button button-add-to-cart"><i
+                                                                    class="fi-rs-edit"></i>Edit</button>
+
+                                                            </div>
+                                                            <div class="product-extra-link2 ">
+                                                                <button type="submit" class="button button-add-to-cart delete" style="background-color:#f43f5e">
+                                                               <i class="fi-rs-trash"></i>
+                                                                Delete
+                                                                </button>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="font-xs">
+                                                            <ul>
+                                                                
+                                                                <li class="mb-5">Expiry Date:<span class="text-brand">
+                                                                        @String.Format("{0:MM/dd/yyyy}", item.ExpiryDate)
+                                                                        </span></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Detail Info -->
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                
+                        //        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                                
+                        //    <div class="product-cart-wrap mb-30">
+
+                        //        <div class="product-img-action-wrap">
+                        //            <div class="product-img product-img-zoom">
+                        //                <a href="shop-product-right.html">
+                        //                    <img class="default-img" src="assets/imgs/shop/product-2-1.jpg" alt="" />
+                        //                    <img class="hover-img" src="assets/imgs/shop/product-2-2.jpg" alt="" />
+                        //                </a>
+                        //            </div>
+                        //            <div class="product-action-1">
+                        //                <a aria-label="Add To Wishlist" class="action-btn" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                        //                <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                        //                <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
+                        //            </div>
+                        //            <div class="product-badges product-badges-position product-badges-mrg">
+                        //                <span class="sale">Sale</span>
+                        //            </div>
+                        //        </div>
+                        //        <div class="product-content-wrap">
+                              
+
+                                    
+                        //              <img class="center" style="height:100px;width:100px;object-fit:cover;border-radius: 20px;" src="@item.ImageFilePath"/>
+                            
+                                
+                        //            <div class="product-category">
+                        //                <a href="shop-grid-right.html">Fruits</a>
+                        //            </div>
+                        //            <h2><a href="shop-product-right.html">@item.Name</a></h2>
+                        //            <div class="product-rate-cover">
+                        //                <div class="product-rate d-inline-block">
+                        //                    <div class="product-rating" style="width: 80%"></div>
+                        //                </div>
+                        //                <span class="font-small ml-5 text-muted"> (3.5)</span>
+                        //            </div>
+                        //            <div>
+                        //                <span class="font-small text-muted">Quantity:  <a href="vendor-details-1.html"> @item.Quantity</a></span>
+                        //                <br/>
+                        //                <span class="font-small text-muted">Expires On:  <a href="vendor-details-1.html"> @item.ExpiryDate</a></span>
+                        //            </div>
+                        //            <div class="product-card-bottom">
+                        //                <div class="product-price">
+                        //                 <span>$52.85</span>
+                        //                  <span class="old-price">$55.8</span>
+                        //                </div>
+                        //                <div class="add-cart">
+                        //                   <a class="add" style="border:none;" asp-page="/FoodTracker/Update" asp-route-id="@item.Id"><i class="bi bi-trash3-fill"></i>Update </a>
+                        //                </div>
+                        //                <div class="add-cart">
+
+                                       
+                        //                <form class="mt-3" method="post" id="deleteform">
+                        //                        <input type="number" value="@item.Id" asp-for="Id" hidden />
+                        //                         <input type="text" value="delete" asp-for="action_type" hidden />
+                                                
+                        //                         <button class="add" style="border:none;text-decoration:none;" type="submit">Delete</button>
+                        //                    </form>
+                                        
+                        //                </div>       
+                
+                        //            </div>
+                        //        </div>
+                        //    </div>
+                        //</div>
+                            }
+                        }
+                        
+                        <!--end product card-->
+                      </div> 
+                    <!--product grid-->
+                    <div class="pagination-area mt-20 mb-20">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination justify-content-start">
+                                <li class="page-item">
+                                    <a class="page-link" href="#"><i class="fi-rs-arrow-small-left"></i></a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                                <li class="page-item"><a class="page-link" href="#">6</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#"><i class="fi-rs-arrow-small-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div> 
+                    
+  
+    <!-- Preloader Start -->
+    <div id="preloader-active">
+        <div class="preloader d-flex align-items-center justify-content-center">
+            <div class="preloader-inner position-relative">
+                <div class="text-center">
+                    <img src="assets/imgs/theme/loading.gif" alt="" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+
+function searchfood(q){
+    if(q.length === 0){
+        document.getElementById("output").innerHTML = "<h1 style='text-align: center;'>No Result Found</h1>";
+        document.getElementById("output").style.height = "100px";
+      
+    }else if(q !== ""){
+        
+        var xhr = new XMLHttpRequest();
+xhr.open("GET", "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + q + "&country=sg&search_simple=1&action=process&json=1", true);
+xhr.onreadystatechange = function() {
+  if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+    var res = JSON.parse(xhr.responseText);
+    var products = res.products;
+    var productList = "";
+    for (var i = 0; i < products.length; i++) {
+      var product = products[i];
+      var productName = product.product_name || "Product Name Not Available";
+      var imageUrl = product.image_front_url || "";
+      var weight = parseFloat(product.product_quantity) / 1000;
+      var str_weight = weight.toString();
+      //var cat = product.categories || "Category Not Available";
+      //productList += "<h1>" + productName + "</h1><br/><img src='" + imageUrl + "' width='400px'/><br/>";
+      productList += "<div class='col-2'><div class='card'> <img src='" + imageUrl + "' width='200px' height='200px'/><div class='card-body'><h5 class='card-title'>" + productName+"</h5><a aria-label='Add Item' class='action-btn' href='/FoodTracker/ExternalAdd?name="+productName+"&image="+imageUrl+"&weight="+str_weight+"' asp-route-id=''>Add Food Item</a></div></div></div>"
+      
+      console.log(weight);  
+     
+      document.getElementById("output").style.height = "200px";
+      document.getElementById("output").style.overflowY = "auto";
+  }
+    document.getElementById("output").innerHTML = productList;
+    console.log("done2");
+    if(products.length === 0 ){
+       document.getElementById("output").style.height = "100px";
+       
+    document.getElementById("output").innerHTML = "<h1 style='text-align: center;'>No Result Found</h1>";
+   
+}
+  }
+};
+xhr.send();
+
+    }
+
+
+//<div class="card" style="width: 18rem;">
+//  <img src="productImageUrl" class="card-img-top" alt="productName">
+//  <div class="card-body">
+//    <h5 class="card-title">productName</h5>
+//  </div>
+//</div>
+}
+    </script>
+    <!-- Vendor JS-->
+    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+    <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.js"></script>
+    <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+    <script src="assets/js/plugins/wow.js"></script>
+    <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+    <script src="assets/js/plugins/magnific-popup.js"></script>
+    <script src="assets/js/plugins/select2.min.js"></script>
+    <script src="assets/js/plugins/waypoints.js"></script>
+    <script src="assets/js/plugins/counterup.js"></script>
+    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="assets/js/plugins/images-loaded.js"></script>
+    <script src="assets/js/plugins/isotope.js"></script>
+    <script src="assets/js/plugins/scrollup.js"></script>
+    <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+    <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
+    <script src="assets/js/plugins/jquery.elevatezoom.js"></script>
+    <!-- Template  JS -->
+    <script src="./assets/js/main.js?v=5.6"></script>
+    <script src="./assets/js/shop.js?v=5.6"></script>
+  
+   
+    

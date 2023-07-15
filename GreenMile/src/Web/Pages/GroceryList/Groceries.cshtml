@@ -1,0 +1,361 @@
+﻿@page
+@using Microsoft.AspNetCore.Identity;
+@using Web.Models;
+@using Web.Services;
+@model Web.Pages.GroceryList.GroceriesModel;
+@inject UserManager<User> _userManager
+@inject IGroceryFoodService _groceryFoodService
+@inject CategoryService _categoryService
+@{
+    var user = await _userManager.GetUserAsync(User);
+    var foods = (await _groceryFoodService.RetrieveFoodByHousehold(user.HouseholdId ?? 0)).Value;
+}
+
+
+
+<style>
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+</style>
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Shop <span></span> Fillter
+            </div>
+        </div>
+    </div>
+    <div class="container mb-30 mt-50">
+        <div class="row">
+            <div class="col-xl-10 col-lg-12 m-auto">
+                <div class="mb-50">
+                    <a class="btn btn-primary" href="/grocerylist/add" style="position:relative;left: 1100px; top: 80px">Add items</a>
+                            <a class="btn btn-info"  id="btn" onclick="download();return false;" style="position:relative;left: 800px; top: 80px">Export List</a>
+                  
+                    <div class="file-input-wrapper" style="position:relative;left: 480px; top: 100px;cursor: pointer">
+                        <button class="btn btn-info">Import List</button>
+                        <form method="POST" id="form" enctype="multipart/form-data">
+                            <input type="file" asp-for="GroceryListUiState.JsonFile" accept=".json" />
+                        </form>
+                  
+                    </div>
+           
+                    
+                                        <button data-bs-toggle="modal" data-bs-target="#quickViewModal"
+                                           href="#"
+                            class="btn btn-info" style="position:relative;left: 80px; top: 80px">
+                                         Generate Grocery List
+                                        </button>
+                    <h1 class="heading-2 mb-10">Grocery List</h1>
+                    <h6 class="text-body">There are <span class="text-brand">@foods.Count</span> products in this list</h6>
+                </div>
+                <div class="table-responsive shopping-summery">
+                    <table class="table table-wishlist">
+                        <thead>
+                            <tr class="main-heading">
+                                <th class="custome-checkbox start pl-30">
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="" />
+                                    <label class="form-check-label" for="exampleCheckbox11"></label>
+                                </th>
+
+                                <th scope="col"  style="margin-left:80px;"colspan="2">Product</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Actions</th>
+                                <th scope="col" class="end">Remove</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(var food in foods)
+                            {
+                                <tr class="pt-30">
+                                    <td class="custome-checkbox pl-30">
+
+                                     @if(food.InBasket) {
+
+                                                                                 <input class="form-check-input active" checked type="checkbox" name="@("checkbox" + food.Id)" id="@("checkbox" + food.Id)" onclick='toggleBasket("@(food.Id)")' value="" />
+                                            <label type="checkbox"  checked="checked" class="form-check-label active" for="@("checkbox" + food.Id)"></label>
+                                        } else {
+                                            <input class="form-check-input active" type="checkbox" name="@("checkbox" + food.Id)" id="@("checkbox" + food.Id)" onclick='toggleBasket("@(food.Id)")' value="" />
+                                            <label type="checkbox"  class="form-check-label" for="@("checkbox" + food.Id)"></label>
+                                        }
+                                    </td>
+                                    <td class="image product-thumbnail pt-40" style="position:relative;bottom: 15px;"><img src="@(food.ImageFilePath ?? "https://uxwing.com/wp-content/themes/uxwing/download/food-and-drinks/meal-food-icon.png")"  alt="#" /></td>
+                                    <td class="product-des product-name">
+                                        <h6><a class="product-name mb-10" style="position: relative; right: 40px;" href="shop-product-right.html">@food.Name</a></h6>
+                             
+                                    </td>
+                                    <td style="position: relative; right: 40px;"style="margin-right: 100px;"class="text-center detail-info" data-title="Stock">
+                                        <div class="detail-extralink mr-15">
+                                            <div class="detail-qty border radius">
+                                                <a href="#" onclick="down('@(food.Id)')" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+
+                                                <span class="qty-val" id='@("value" + food.Id)'>@food.Quantity</span>
+                                                <input type="hidden" value="@food.Quantity" id='@("GroceryListUiState_Quantity" + food.Id)'/>
+                                                <a href="#" class="qty-up" onclick="up('@(food.Id)')"><i class="fi-rs-angle-small-up"></i></a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="position: relative; right: 40px;" class="text-center detail-info" data-title="Stock">
+                                        <span class="stock-status in-stock mb-0"> @((await _categoryService.RetrieveCategory(food.CategoryId ?? 0))?.Name)</span>
+                                    </td>
+
+                                    <td class="text-right" style="position: relative; right: 1px;bottom: 10px;" data-title="Cart">
+
+                                        <button data-bs-toggle="modal" data-bs-target="#quickViewModal-@(food.Id)"
+                                            style="background-color: black; color:white" href="#"
+                                            class="btn btn-sm btn-warning rounded font-sm mt-15">
+                                           View
+                                        </button>
+
+                                    </td>
+
+                                    <td class="action text-center" style="position: relative; right: 40px;" data-title="Remove">
+                                        
+                                        <form method="POST">
+                                            <input type="hidden" asp-for="GroceryListUiState.DeleteId" value="@(food.Id)"/>
+                                            <button style="background:none; color: inherit; border: none; padding: 0; font:inherit; cursor: pointer; outline: inherit" type="submit" asp-page-handler="Delete" href="#" class="text-body"><i class="fi-rs-trash"></i></button>
+                                        </form>
+                                     
+                                    </td>
+                                </tr>
+
+
+
+
+
+                                <div class="modal fade custom-modal" id="quickViewModal" tabindex="-1"
+                                 aria-labelledby="quickViewModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                            <div class="modal-body">
+                                                Enter your food:<br>
+                                                <input class="form-control" type="text" id="food" style="margin-bottom:20px; "placeholder="Enter what you want to cook to obtain ingredients for your list!"/>
+                                                <a class="btn btn-info" id="btn2">Generate Grocery List</a>
+
+                                            
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+
+
+                                <div class="modal fade custom-modal" id="quickViewModal-@(food.Id)" tabindex="-1"
+                                 aria-labelledby="quickViewModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                            <div class="modal-body">
+                                                <div class="row">
+                      
+                                                    <img src="@(food.ImageFilePath ?? "https://uxwing.com/wp-content/themes/uxwing/download/food-and-drinks/meal-food-icon.png")" alt="#"  style="margin-bottom: 20px;height: 300px;object-fit:cover;border-radius:50px;"/>
+                                                    <div class="detail-info pr-30 pl-30">
+                                                    
+                                                        <h3 class="title-detail" style="margin-bottom: 20px;">
+                                                            <a style=""
+                                                           href="shop-product-right.html" class="text-heading">
+                                                             @(food.Name)
+
+                                                            </a>
+                                                        </h3>
+
+                                                        <div style="margin-bottom:20px;">
+                                            
+                                                            @if(String.IsNullOrEmpty(food.Description)) {
+                                                                <span style="font-weight:bold;">No Description</span>
+                                                            } else
+                                                            {
+                                                                <div>
+                                                                    @(food.Description)
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                        <span class="stock-status in-stock mb-0"> @((await _categoryService.RetrieveCategory(food.CategoryId ?? 0))?.Name)</span>
+                                                        <div style="margin-top: 20px;">
+                                                            <div class="detail-extralink mr-15">
+                                                                <div class="detail-qty border radius">
+                                                              
+
+                                                                    <span style="position:relative;left: 8px;"class="qty-val" id='@("values" + food.Id)'>@food.Quantity</span>
+                                                                    <input type="hidden" value="@food.Quantity" id='@("GroceryListUiState_Quantity" + food.Id)' />
+                                                                   
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+
+
+                                                    <!-- Detail Info -->
+                                                    <div style="margin-top: 30px;margin-left:10px" class="text-start">
+
+
+
+
+
+
+
+
+                                                        <button data-bs-dismiss="modal" aria-label="Close"
+                                                            class="btn btn-lg btn-brand rounded font-sm mt-15">
+                                                      Close
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                            }
+                  
+                
+             
+                      
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+        <script>
+
+        document.getElementById("btn2").addEventListener("click", function () {
+            document.getElementById("food").disabled = true
+            document.getElementById("btn2").innerHTML = "Loading..."
+            const data = {
+                response: document.getElementById("food").value
+            };
+
+            fetch("/api/gpt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.text())
+                .then( data => {
+                    let link = document.createElement('a');
+                    link.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+                    link.download = 'GeneratedGroceryList.json';
+                    link.click();
+                         document.getElementById("food").disabled = false
+                            document.getElementById("btn2").innerHTML = "Generate Grocery List"
+                })
+                .catch(error => console.error("Error:", error));
+        });
+
+            const input = document.getElementById("GroceryListUiState_JsonFile");
+input.addEventListener("change", async (event) => {
+
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.readAsText(file);
+  reader.onload = function() {
+    const json = JSON.parse(reader.result);
+    console.log(json);
+  };
+  document.getElementById("form").submit();
+});
+
+            document.getElementById("btn").addEventListener("click", function() {
+            fetch("/api/grocerylist/@(user.HouseholdId)")
+                .then(response => response.json())
+                .then(data => {
+                    const blob = new Blob([data], { type: "application/json" });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "GroceryList.json";
+                    link.click();
+                });
+});
+    function up(id) {
+            let vals = Math.max(1, parseInt(document.getElementById("value" + id).textContent) + 1)
+       
+            document.getElementById("value" + id).textContent =vals
+        document.getElementById("value" + id).textContent = vals
+
+            fetch('/api/grocerylist/' + id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    value: 1
+                })
+            })
+                .then(res => {
+                    return res.json()
+                })
+                .then(data => console.log(data))
+    }
+
+    function down(id) {
+            let vals = Math.max(1, document.getElementById("value" + id).textContent - 1)
+        document.getElementById("value" + id).textContent = vals
+        document.getElementById("value" + id).textContent = vals
+          fetch('/api/grocerylist/' + id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    value: -1
+                })
+            })
+                .then(res => {
+                    return res.json()
+                })
+                .then(data => console.log(data))
+    }
+
+
+
+    function toggleBasket(id) {
+
+            fetch('/api/grocerylist/change/' + id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    
+                })
+            })
+    }
+
+         
+</script>
+
+
+
+
+
+</main>

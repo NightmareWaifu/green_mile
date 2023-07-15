@@ -1,0 +1,146 @@
+@page
+@model HouseholdChatModel
+@using Microsoft.AspNetCore.Identity
+@using Web.Models
+@using Web.Services
+@inject UserManager<User> _userManager;
+@inject MessageService _messageService;
+@inject IHouseholdService _householdService;
+@{
+    var user = await _userManager.GetUserAsync(User);
+    var userId = user?.Id;
+    var householdId = user?.HouseholdId;
+    var messages = await _messageService.GetMessagesByHouseholdId((int)householdId);
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<input type="text" name="username" id="username" value='@(user.UserName)' hidden />
+<input type="text" value='@(userId ?? "None")' id="userId" hidden />
+<input type="text" value='@(householdId.ToString() ?? "None")' id="householdId" hidden>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-2 col-12"></div>
+        <div class="col-lg-8 col-12">
+            <div class="card my-3">
+                <div class="card-header">
+                    @{
+                        var count = (await
+                        _householdService.RetrieveHouseholdDetails((int)householdId)).Value.Users.Count();
+                    }
+                    <h3>Chat</h3>
+                    <small>@count Members</small>
+                </div>
+                <div class="card-body">
+                    <div id="messagesList" class="d-flex flex-column gap-3 align-items-start overflow-scroll"
+                        style="max-height: 400px;">
+                        @foreach (var message in messages)
+                        {
+                            @if (message.User.UserName != user.UserName)
+                            {
+                                <div class="text-white px-2 rounded" style="background-color: #33764e;"
+                                    id="message_@message.Key">
+                                    @if (message.ImagePath != null)
+                                    {
+                                        <img src="~/@message.ImagePath" alt="picture" width="400" height="auto"
+                                            style="object-fit: cover;" loading="lazy" />
+                                    }
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong id="username">@message.User.UserName</strong>
+                                    </div>
+                                    <div id="message" class="d-flex gap-3">
+                                        <p class="text-white">@message.Text</p>
+                                        <small class="small text-muted">@message.CreatedAt.ToShortTimeString()</small>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="px-2 border rounded ms-auto" id="message_@message.Key">
+                                    @if (message.ImagePath != null)
+                                    {
+                                        <img src="~/@message.ImagePath" alt="picture" width="400" height="auto"
+                                            style="object-fit: cover;" loading="lazy" />
+                                    }
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong id="username">@message.User.UserName</strong>
+                                        <i class="fa fa-trash" onclick="deleteMessage(this)"
+                                            onmouseover="this.style.color = '#ef4444'"
+                                            onmouseout="this.style.color = '#7E7E7E'"></i>
+                                    </div>
+                                    <div id="message" class="d-flex gap-3">
+                                        <p>@message.Text</p>
+                                        <small class="small text-muted">@message.CreatedAt.ToShortTimeString()</small>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form class="d-flex gap-3" id="messageForm">
+                        <input type="text" id="messageInput" placeholder="Enter message" class="form-control"
+                            style="background-color: #fafafa;">
+                        <label class="btn" style="display:none">
+                            <i class="fa fa-image"></i>
+                            <input type="file" id="fileInput" style="display: none;">
+                        </label>
+                        <button class="clear-button" id="clearButton" style="display: none;">
+                            <i class="fa fa-ban"></i>
+                        </button>
+                        <button class="btn" id="sendButton" value="Send">
+                            Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-12"></div>
+    </div>
+</div>
+
+<style>
+    .clear-button {
+        display: inline-block;
+        border: 1px solid transparent;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 12px 30px;
+        border-radius: 4px;
+        color: #fff;
+        border: 1px solid transparent;
+        background-color: #ef4444;
+        cursor: pointer;
+        -webkit-transition: all 300ms linear 0s;
+        transition: all 300ms linear 0s;
+        letter-spacing: 0.5px;
+        "
+
+    }
+
+    .clear-button:hover {
+        background-color: #ffc107;
+    }
+</style>
+<script src="~/js/chat.js"></script>
+<script>
+    var messageList = document.getElementById("messagesList");
+    messageList.scrollTop = messageList.scrollHeight;
+
+    var clearButton = document.getElementById("clearButton")
+    var fileInput = document.getElementById("fileInput")
+
+    function handleClear() {
+        clearButton.style.display = "none";
+        fileInput.parentElement.style.display = "none"
+        fileInput.value = null
+    }
+
+    function handleFileSelected() {
+        clearButton.style.display = "inline";
+        fileInput.parentElement.style.display = "none"
+    }
+
+    clearButton.addEventListener('click', handleClear)
+    fileInput.addEventListener('change', handleFileSelected)
+</script>

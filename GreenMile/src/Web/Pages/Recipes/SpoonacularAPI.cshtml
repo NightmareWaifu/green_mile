@@ -1,0 +1,69 @@
+﻿@page
+@model Web.Pages.Recipes.SpoonacularAPIModel
+@{
+}
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Web.Models;
+@using Web.Services;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<input id="search" />
+<input class="btn btn-primary" onclick="getRecipe(document.getElementById('search').value)" type="button" value="Search"/>
+<input id="data"/>
+@{
+	@foreach (var item in Enumerable.Range(0, Model.numberOfRecipes))
+	{
+	<div id=@("output"+item)>
+	</div>
+	<a href="" id=@("source"+item)></a>
+	}
+}
+
+
+
+
+
+<script type="text/javascript">
+	function getSource(recipeName, index) {
+		var id = "source" + index
+		//alert(id)
+		$.ajax({
+            url: "https://api.spoonacular.com/recipes/" + recipeName + "/information?apiKey=23f97f05527c4f059a4cac5eb69f7895",
+			success: function (res) {
+
+				document.getElementById(id).innerHTML = res.sourceUrl
+				document.getElementById(id).href = res.sourceUrl
+			}
+		});
+	}
+	function getRecipe(query) {
+		document.getElementById("data").value = "Changed";
+		var numberOfRecipes = @Model.numberOfRecipes;
+		var displayString = "";
+		$.ajax({
+			url: "https://api.spoonacular.com/recipes/search?apiKey=7bee4be8c5994749b846c4966537ed75&number=" + numberOfRecipes + "&query=" + query, //number = 1 means get the top result
+			success: function (res) {
+				if (res.results.length == 0) 
+				{
+					alert("No recipes found.");
+				}
+				document.getElementById("data").value = res.results[0].readyInMinutes;
+				for (let i = 0; i < numberOfRecipes; i++) {
+
+					var id = "output" + i
+
+					document.getElementById(id).innerHTML = "<h1>" +
+						res.results[i].title +
+						"</h1><br><img src='" +
+						res.baseUri + res.results[i].image + "'width='400' / ><br> ready in " + res.results[i].readyInMinutes + " minutes"
+						+ "<br>" //results[0].(what you need) follow documentation to see how to get data
+					getSource(res.results[i].id, i)
+
+					//displayString += getSource(res.results[0].id) + "<br>"
+
+				}
+			}
+		});
+	}
+</script>

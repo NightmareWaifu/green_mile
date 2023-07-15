@@ -1,0 +1,7 @@
+﻿namespace Web.Models
+{
+    public class Value
+    {
+        public int value { get; set; }
+    }
+}

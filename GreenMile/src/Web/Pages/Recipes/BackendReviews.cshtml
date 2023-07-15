@@ -1,0 +1,235 @@
+﻿
+@page
+@model Web.Pages.Recipes.BackendReviewsModel;
+@using Microsoft.AspNetCore.Identity;
+@using Web.Models;
+@using Web.Services;
+@inject UserManager<User> _userManager;
+@inject IImageService imageService;
+@{
+
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!--End header-->
+<div class="container mb-30">
+	<div class="row">
+		<div class="col-xl-11 col-lg-12 m-auto">
+			<div class="row">
+				<div class="col-xl-9">
+					<div class="product-detail accordion-detail">
+						<div class="row mb-50 mt-30">
+							<div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
+								<div class="detail-gallery">
+									<span class="zoom-icon"><i class="fi-rs-search"></i></span>
+									<!-- MAIN SLIDES -->
+									<div class="product-image-slider">
+										<figure class="border-radius-10">
+											<img src="@(string.IsNullOrEmpty(Model.currentRecipe.imageFilePath) ?"/uploads/null.png" : Model.currentRecipe.imageFilePath)" alt="product image" style="height:500px;width:522px;object-fit:cover" />
+										</figure>
+									</div>
+									<!-- THUMBNAILS -->
+
+								</div>
+								<!-- End Gallery -->
+							</div>
+							<div class="col-md-6 col-sm-12 col-xs-12">
+								<div class="detail-info pr-30 pl-30">
+
+									<h2 class="title-detail">@Model.currentRecipe.recipeName</h2>
+									<div class="product-detail-rating">
+										<div class="product-rate-cover text-end">
+											<div class="product-rate d-inline-block">
+												<div class="product-rating" style="width: @Model.averageRating%"></div>
+											</div>
+											<span class="font-small ml-5 text-muted"> (@Model.allReviews.Count reviews)</span>
+										</div>
+									</div>
+									<div class="clearfix product-price-cover">
+										<div class="product-price primary-color float-left">
+											<span class="current-price text-brand">
+												@Model.currentRecipe.duration mins
+											</span>
+											@*<span>
+											<span class="save-price font-md color3 ml-15">26% Off</span>
+											<span class="old-price font-md ml-15">$52</span>
+											</span>*@
+										</div>
+									</div>
+
+
+									<div class="detail-extralink mb-50">
+
+										<div class="product-extra-link2">
+											
+										</div>
+									</div>
+									<h2>Ingredients:</h2>
+									<div class="font-xs">
+										@{
+															@foreach (var ingredient in Model.ingredients)
+											{
+																<p>@ingredient</p>
+											}
+										}
+									</div>
+								</div>
+
+								<hr />
+							</div>
+							<h2>Reviews</h2>
+							<div class="comments-area">
+                                                    <div class="row">
+                                                        
+							@{
+										@if (Model.allReviews.Count == 0)
+										{
+											<h4>No reviews.</h4>
+										}
+										else if(Model.allReviews.Count == 1)
+										{
+											<h4>@Model.allReviews.Count review</h4>
+										}
+										else
+										{
+											<h4>@Model.allReviews.Count reviews</h4>
+										}
+									@foreach (var review in Model.allReviews)
+								{
+
+											User user =  _userManager.FindByIdAsync(review.userID).Result;
+											<div class="product-info">
+										<div class="tab-content shop_info_tab entry-main-content">
+											<div class="product-img product-img-zoom">
+												<a href="#">
+															<img class="default-img" src="@((await imageService.RetrieveImage(user)).Value)" alt="" style="height:100px;width:100px;object-fit:cover" />
+												</a>
+											</div>
+											<div class="col-lg-4">
+												<h4 class="mb-30">@user.FirstName</h4>
+												@foreach (var item in Enumerable.Range(1,review.rating))
+												{
+													<span class="fa fa-star checked"></span>
+												}
+												@foreach(var item in Enumerable.Range(1,5-review.rating))
+												{
+													<span class="fa fa-star"></span>
+												}
+												<br>
+												<p1>@review.description</p1>
+											</div>
+													<a asp-page="/Recipes/BackendReviews" asp-page-handler="Delete" asp-route-id="@review.Id" class="btn btn-sm font-sm btn-light rounded" style="background-color:#f43f5e"> <i class="material-icons md-delete_forever"></i> Delete Review </a>
+
+										</div>
+									</div>
+												<div class="container"></div>
+								
+								}
+							}
+							</div>
+
+							</div>
+
+							
+						</>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+	.rating {
+		--dir: right;
+		--fill: gold;
+		--fillbg: rgba(100, 100, 100, 0.15);
+		--star: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.25l-6.188 3.75 1.641-7.031-5.438-4.734 7.172-0.609 2.813-6.609 2.813 6.609 7.172 0.609-5.438 4.734 1.641 7.031z"/></svg>');
+		--stars: 5;
+		--starsize: 3rem;
+		--symbol: var(--star);
+		--value: 1;
+		--w: calc(var(--stars) * var(--starsize));
+		--x: calc(100% * (var(--value) / var(--stars)));
+		block-size: var(--starsize);
+		inline-size: var(--w);
+		position: relative;
+		touch-action: manipulation;
+		-webkit-appearance: none;
+	}
+
+	[dir="rtl"] .rating {
+		--dir: left;
+	}
+
+	.rating::-moz-range-track {
+		background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+		block-size: 100%;
+		mask: repeat left center/var(--starsize) var(--symbol);
+	}
+
+	.rating::-webkit-slider-runnable-track {
+		background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+		block-size: 100%;
+		mask: repeat left center/var(--starsize) var(--symbol);
+		-webkit-mask: repeat left center/var(--starsize) var(--symbol);
+	}
+
+	.rating::-moz-range-thumb {
+		height: var(--starsize);
+		opacity: 0;
+		width: var(--starsize);
+	}
+
+	.rating::-webkit-slider-thumb {
+		height: var(--starsize);
+		opacity: 0;
+		width: var(--starsize);
+		-webkit-appearance: none;
+	}
+
+	.rating, .rating-label {
+		display: block;
+		font-family: ui-sans-serif, system-ui, sans-serif;
+	}
+
+	.rating-label {
+		margin-block-end: 1rem;
+	}
+
+	/* NO JS */
+	.rating--nojs{
+		padding-left: 0px;
+	}
+	.rating--nojs::-moz-range-track {
+		background: var(--fillbg);
+	}
+
+	.rating--nojs::-moz-range-progress {
+		background: var(--fill);
+		block-size: 75%;
+		mask: repeat left center/var(--starsize) var(--star);
+	}
+
+	.rating--nojs::-webkit-slider-runnable-track {
+		background: var(--fillbg);
+	}
+
+	.rating--nojs::-webkit-slider-thumb {
+		background-color: var(--fill);
+		box-shadow: calc(0rem - var(--w)) 0 0 var(--w) var(--fill);
+		opacity: 1;
+		width: 1px;
+	}
+
+	[dir="rtl"] .rating--nojs::-webkit-slider-thumb {
+		box-shadow: var(--w) 0 0 var(--w) var(--fill);
+	}
+	.container
+	{
+		margin-bottom: 20px;
+	}
+	.checked {
+		color: orange;
+	}
+</style>

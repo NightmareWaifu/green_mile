@@ -1,0 +1,317 @@
+﻿
+@page
+@model Web.Pages.Recipes.DetailsModel
+@using Microsoft.AspNetCore.Identity;
+@using Web.Models;
+@using Web.Services;
+@inject UserManager<User> _userManager;
+@inject IImageService imageService;
+@{
+
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!--End header-->
+<div class="container mb-30">
+	<div class="row">
+		<div class="col-xl-11 col-lg-12 m-auto">
+			<div class="row">
+				<div class="col-xl-9">
+					<div class="product-detail accordion-detail">
+						<div class="row mb-50 mt-30">
+							<div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
+								<div class="detail-gallery">
+									<span class="zoom-icon"><i class="fi-rs-search"></i></span>
+									<!-- MAIN SLIDES -->
+									<div class="product-image-slider">
+										<figure class="border-radius-10">
+											<img src="@(string.IsNullOrEmpty(Model.currentRecipe.imageFilePath) ?"/uploads/null.png" : Model.currentRecipe.imageFilePath)" alt="product image" style="height:500px;width:522px;object-fit:cover" />
+										</figure>
+									</div>
+									<!-- THUMBNAILS -->
+
+								</div>
+								<!-- End Gallery -->
+							</div>
+							<div class="col-md-6 col-sm-12 col-xs-12">
+								<div class="detail-info pr-30 pl-30">
+
+									<h2 class="title-detail" >@Model.currentRecipe.recipeName</h2>
+									<div class="product-detail-rating">
+										<div class="product-rate-cover text-end">
+											<div class="product-rate d-inline-block">
+												<div class="product-rating" style="width: @Model.averageRating%"></div>
+											</div>
+											<span class="font-small ml-5 text-muted"> (@Model.allReviews.Count reviews)</span>
+										</div>
+									</div>
+									<div class="clearfix product-price-cover">
+										<div class="product-price primary-color float-left">
+											<span class="current-price text-brand">
+												@Model.currentRecipe.duration mins
+											</span>
+											@*<span>
+											<span class="save-price font-md color3 ml-15">26% Off</span>
+											<span class="old-price font-md ml-15">$52</span>
+											</span>*@
+										</div>
+									</div>
+
+
+									<div class="detail-extralink mb-50">
+
+										<div class="product-extra-link2">
+
+										</div>
+									</div>
+									<h2>Ingredients:</h2>
+									<div class="font-xs">
+										@{
+																		@foreach (var ingredient in Model.ingredients)
+											{
+																			<p>@ingredient</p>
+											}
+										}
+									</div>
+								</div>
+
+								<hr />
+							</div>
+							<h2>Reviews</h2>
+							<div class="comments-area">
+                                                    <div class="row">
+                                                        
+							@{
+													@if (Model.allReviews.Count == 0)
+										{
+														<h4>No reviews.</h4>
+										}
+										else if (Model.allReviews.Count == 1)
+										{
+														<h4>@Model.allReviews.Count review</h4>
+										}
+										else
+										{
+														<h4>@Model.allReviews.Count reviews</h4>
+										}
+												@foreach (var review in Model.allReviews)
+								{
+
+											User user =  _userManager.FindByIdAsync(review.userID).Result;
+														<div class="product-info">
+													<div class="tab-content shop_info_tab entry-main-content">
+														<div class="product-img product-img-zoom">
+															<a href="#">
+															<img class="default-img" src="@((await imageService.RetrieveImage(user)).Value)" alt="" style="height:100px;width:100px;object-fit:cover" />
+															</a>
+														</div>
+														<div class="col-lg-4">
+															<h4 class="mb-30">@user.FirstName</h4>
+															@foreach (var item in Enumerable.Range(1,review.rating))
+												{
+																<span class="fa fa-star checked"></span>
+												}
+															@foreach(var item in Enumerable.Range(1,5-review.rating))
+												{
+																<span class="fa fa-star"></span>
+												}
+															<br>
+															<p1>@review.description</p1>
+														
+														</div>
+													</div>
+												</div>
+															<div class="container"></div>
+								
+								}
+							}
+							</div>
+
+							</div>
+							@*<div class="single-comment justify-content-between d-flex mb-30">
+								<div class="user justify-content-between d-flex">
+									<div class="thumb text-center">
+										<img src="assets/imgs/blog/author-2.png" alt="" />
+										<a href="#" class="font-heading text-brand">Sienna</a>
+									</div>
+									<div class="desc">
+										<div class="d-flex justify-content-between mb-10">
+											<div class="d-flex align-items-center">
+												<span class="font-xs text-muted">December 4, 2022 at 3:12 pm </span>
+											</div>
+											<div class="product-rate d-inline-block">
+												<div class="product-rating" style="width: 100%"></div>
+											</div>
+										</div>
+										<p class="mb-10">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus, suscipit exercitationem accusantium obcaecati quos voluptate nesciunt facilis itaque modi commodi dignissimos sequi repudiandae minus ab deleniti totam officia id incidunt? <a href="#" class="reply">Reply</a></p>
+									</div>
+								</div>
+							</div>*@
+
+							@*<div class="product-info">
+								<div class="tab-content shop_info_tab entry-main-content">
+
+									<div class="col-lg-4">
+										<h4 class="mb-30">Customer reviews</h4>
+										<div class="d-flex mb-30">
+											<div class="product-rate d-inline-block mr-15">
+												<div class="product-rating" style="width: 90%"></div>
+											</div>
+											<h6>4.8 out of 5</h6>
+										</div>
+										<div class="progress">
+											<span>5 star</span>
+											<div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%</div>
+										</div>
+										<div class="progress">
+											<span>4 star</span>
+											<div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+										</div>
+										<div class="progress">
+											<span>3 star</span>
+											<div class="progress-bar" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%</div>
+										</div>
+										<div class="progress">
+											<span>2 star</span>
+											<div class="progress-bar" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%</div>
+										</div>
+										<div class="progress mb-30">
+											<span>1 star</span>
+											<div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">85%</div>
+										</div>
+									</div>
+								</div>
+							</div>*@
+							<!--comment form-->
+							<div class="comment-form">
+								<h4 class="mb-15">Add a review</h4>
+								<div class="row">
+									<div class="col-lg-8 col-md-12">
+										<form method="post">
+											<div asp-validation-summary="All" class="text-danger">
+
+											</div>
+											<label asp-for="review.rating" class="rating-label">Your rating</label>
+												<input asp-for="review.rating" class="rating rating--nojs" max="5" step="1" type="range" value="0"/>
+													   <span asp-validation-for="review.rating" class="text-danger"></span>
+													  <div class="container"></div>
+											
+											<div class="row">
+												<div class="col-12">
+													<div class="form-group">
+														<textarea class="form-control w-100" asp-for="review.description" cols="30" rows="9" placeholder="Write your review..." ></textarea>
+														<span asp-validation-for="review.description" class="text-danger"></span>
+													</div>
+												</div>	
+											</div>
+											<div class="form-group">
+												<button type="submit" class="button button	-contactForm">Submit Review</button>
+											</div>
+											<input type="hidden" asp-for="review.userID" value="0" />
+											<input type="hidden" asp-for="review.recipeID" value="0" />
+										</form>
+									</div>
+								</div>
+							</div>
+						</>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+	.rating {
+		--dir: right;
+		--fill: gold;
+		--fillbg: rgba(100, 100, 100, 0.15);
+		--star: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.25l-6.188 3.75 1.641-7.031-5.438-4.734 7.172-0.609 2.813-6.609 2.813 6.609 7.172 0.609-5.438 4.734 1.641 7.031z"/></svg>');
+		--stars: 5;
+		--starsize: 3rem;
+		--symbol: var(--star);
+		--value: 1;
+		--w: calc(var(--stars) * var(--starsize));
+		--x: calc(100% * (var(--value) / var(--stars)));
+		block-size: var(--starsize);
+		inline-size: var(--w);
+		position: relative;
+		touch-action: manipulation;
+		-webkit-appearance: none;
+	}
+
+	[dir="rtl"] .rating {
+		--dir: left;
+	}
+
+	.rating::-moz-range-track {
+		background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+		block-size: 100%;
+		mask: repeat left center/var(--starsize) var(--symbol);
+	}
+
+	.rating::-webkit-slider-runnable-track {
+		background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+		block-size: 100%;
+		mask: repeat left center/var(--starsize) var(--symbol);
+		-webkit-mask: repeat left center/var(--starsize) var(--symbol);
+	}
+
+	.rating::-moz-range-thumb {
+		height: var(--starsize);
+		opacity: 0;
+		width: var(--starsize);
+	}
+
+	.rating::-webkit-slider-thumb {
+		height: var(--starsize);
+		opacity: 0;
+		width: var(--starsize);
+		-webkit-appearance: none;
+	}
+
+	.rating, .rating-label {
+		display: block;
+		font-family: ui-sans-serif, system-ui, sans-serif;
+	}
+
+	.rating-label {
+		margin-block-end: 1rem;
+	}
+
+	/* NO JS */
+	.rating--nojs{
+		padding-left: 0px;
+	}
+	.rating--nojs::-moz-range-track {
+		background: var(--fillbg);
+	}
+
+	.rating--nojs::-moz-range-progress {
+		background: var(--fill);
+		block-size: 75%;
+		mask: repeat left center/var(--starsize) var(--star);
+	}
+
+	.rating--nojs::-webkit-slider-runnable-track {
+		background: var(--fillbg);
+	}
+
+	.rating--nojs::-webkit-slider-thumb {
+		background-color: var(--fill);
+		box-shadow: calc(0rem - var(--w)) 0 0 var(--w) var(--fill);
+		opacity: 1;
+		width: 1px;
+	}
+
+	[dir="rtl"] .rating--nojs::-webkit-slider-thumb {
+		box-shadow: var(--w) 0 0 var(--w) var(--fill);
+	}
+	.container
+	{
+		margin-bottom: 20px;
+	}
+	.checked {
+		color: orange;
+	}
+</style>

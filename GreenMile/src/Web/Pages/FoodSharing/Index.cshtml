@@ -1,0 +1,266 @@
+﻿@page
+@model Web.Pages.FoodSharing.IndexModel
+
+
+<main class="main">
+    <div class="page-header mt-30 mb-75">
+        <div class="container">
+            <div class="archive-header">
+                <div class="row align-items-center">
+                    <div class="col-xl-3">
+                        <h1 class="mb-15">FoodSharing</h1>
+                        <div class="breadcrumb">
+                            <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                            <span></span> Food Sharing
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-content mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="shop-product-fillter mb-50 pr-30">
+                        <div class="totall-product">
+                            <h2>
+                                <img class="w-36px mr-10" src="assets/imgs/theme/icons/category-1.svg" alt="" />
+                                Donation Food Items
+                            </h2>
+                        </div>
+                        <div class="sort-by-product-area">
+                            <div class="sort-by-cover mr-10">
+                                <div class="sort-by-product-wrap">
+                                    <div class="sort-by">
+                                        <span><i class="fi-rs-apps"></i>Show:</span>
+                                    </div>
+                                    <div class="sort-by-dropdown-wrap">
+                                        <span> 50 <i class="fi-rs-angle-small-down"></i></span>
+                                    </div>
+                                </div>
+                                <div class="sort-by-dropdown">
+                                    <ul>
+                                        <li><a class="active" href="#">50</a></li>
+                                        <li><a href="#">100</a></li>
+                                        <li><a href="#">150</a></li>
+                                        <li><a href="#">200</a></li>
+                                        <li><a href="#">All</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="sort-by-cover mr-10">
+                                <div class="sort-by-product-wrap">
+                                    <div class="sort-by">
+                                        <span><i class="fi-rs-apps-sort"></i>Sort:</span>
+                                    </div>
+                                    <div class="sort-by-dropdown-wrap">
+                                        <span>Featured <i class="fi-rs-angle-small-down"></i></span>
+                                    </div>
+                                </div>
+                                <div class="sort-by-dropdown">
+                                    <ul>
+                                        <li><a class="active" href="#">Featured</a></li>
+                                        <li><a href="#">Newest</a></li>
+                                        <li><a href="#">Most comments</a></li>
+                                        <li><a href="#">Release Date</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="createButton">
+                                <button type="button" class="btn btn-info"
+                                    onclick="location.href='/FoodSharing/AddDonation'">Donate</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="loop-grid pr-30">
+                        <div class="row">
+
+                            @{
+                                @foreach (var item in Model.DonationList)
+                                {
+                                    <article class="col-xl-4 col-lg-6 col-md-6 text-center hover-up mb-30 animated">
+                                        <div class="post-thumb">
+                                            <a data-bs-toggle="modal" data-bs-target="#quickViewModal@(item.Id)" onclick="initMap('@item.Location')">
+                                                <img class="border-radius-15" src="@item.CustomFood.Image" alt="" />
+                                            </a>
+                                        </div>
+                                        <div class="entry-content-2">
+                                            <h6 class="mb-10 font-sm"><a class="entry-meta text-muted"
+                                                href=" ">@item.CustomFood.Category</a></h6>
+                                            <h4 class="post-title mb-15">
+                                                <a data-bs-toggle="modal" data-bs-target="#quickViewModal@(item.Id)">@item.CustomFood.Name </a>
+                                            </h4>
+                                            <div class="entry-meta font-xs color-grey mt-10 pb-10">
+                                                <div>
+                                                    <span class="post-on mr-10">@String.Format("{0:MM/dd/yyyy}", item.Date)</span>
+                                                    <span class="hit-count has-dot mr-10">@item.User.UserName</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                    <!-- Quick view -->
+                                    <div class="modal fade custom-modal" id="quickViewModal@(item.Id)" tabindex="-1"
+                                     aria-labelledby="quickViewModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                                <div class="modal-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
+                                                            <div class="detail-gallery">
+                                                                <div class="product-image-slider">
+                                                                    <figure class="border-radius-10">
+                                                                        <img src="@item.CustomFood.Image" alt="product image" />
+                                                                    </figure>
+                                                                    <figure class="border-radius-10">
+                                                                        <img src="assets/imgs/shop/product-16-1.jpg"
+                                                                         alt="product image" />
+                                                                    </figure>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-12 col-xs-12">
+                                                            <div class="detail-info pr-30 pl-30">
+                                                                <span class="stock-status in-stock"> @item.Status </span>
+                                                                <h3 class="title-detail">
+                                                                    <span class="text-heading">@item.CustomFood.Name</span>
+                                                                </h3>
+                                                                <div class="food-description">
+                                                                    <h3 class="badge bg-secondary">@item.CustomFood.Category</h3>
+                                                                    <br>
+                                                                    <br>
+                                                                    <p>
+                                                                        @item.CustomFood.Description
+                                                                    </p>
+                                                                </div>
+                                                                <div id="map"></div>
+                                                                <div class="detail-extralink mb-30">
+                                                                    <form method="post">
+                                                                    <input asp-for = "DonationId" value= "@item.Id" hidden>
+                                                                    <div class="product-extra-link2">
+                                                                        <button type="submit" class="button button-add-to-cart">
+                                                                           Request
+                                                                        </button>
+                                                                    </div>
+                                                                    </form>
+                                                                </div>
+                                                                <div class="font-xs">
+                                                                    <ul>
+                                                                        <li class="mb-5">
+                                                                            Donor: <span class="text-brand">@item.User.UserName</span>
+                                                                        </li>
+                                                                        <li class="mb-5">
+                                                                            Date:<span class="text-brand">
+                                                                                @String.Format("{0:MM/dd/yyyy}", item.Date)
+                                                                            </span>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Detail Info -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination justify-content-start">
+                                <li class="page-item">
+                                    <a class="page-link" href="#"><i class="fi-rs-arrow-small-left"></i></a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                                <li class="page-item"><a class="page-link" href="#">6</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#"><i class="fi-rs-arrow-small-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <div class="col-lg-3 primary-sidebar sticky-sidebar">
+                    <div class="widget-area">
+                        <div class="sidebar-widget-2 widget_search mb-50">
+                            <div class="search-form">
+                                <form action="#">
+                                    <input type="text" placeholder="Search…" />
+                                    <button type="submit"><i class="fi-rs-search"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="sidebar-widget widget-category-2 mb-50">
+                            <h5 class="section-title style-1 mb-30">Category</h5>
+                            <ul>
+                                <li>
+                                    <a href="#"> <img src="assets/imgs/theme/icons/category-1.svg"
+                                            alt="" />Fresh produce</a><span class="count">@Model.Freshproduce</span>
+                                </li>
+                                <li>
+                                    <a href="#"> <img src="assets/imgs/theme/icons/category-2.svg"
+                                            alt="" />Canned food</a><span class="count">@Model.Cannedfood</span>
+                                </li>
+                                <li>
+                                    <a href="#"> <img src="assets/imgs/theme/icons/category-3.svg"
+                                             alt="" />Snacks
+                                    </a><span class="count">@Model.Snacks</span>
+                                </li>
+                                <li>
+                                    <a href="#"> <img src="assets/imgs/theme/icons/category-4.svg"
+                                             alt="" />Beverages
+                                    </a><span class="count">@Model.Beverages</span>
+                                </li>
+                                <li>
+                                    <a href="#"> <img src="assets/imgs/theme/icons/category-5.svg"
+                                             alt="" />Meats
+                                    </a><span class="count">@Model.Meats</span>
+                                </li>
+                            </ul>
+                        </div>                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+    #map {
+        margin-top: 10px;
+        width: 80%;
+        height: 100px;
+        margin-bottom: 10px;
+    }
+</style>
+
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8-8MPI9bBRCr3ny5hatCyihjlm1eT-kQ"></script>
+
+<script>
+    function initMap(location) {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+        });
+
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'address': location }, function (results, status) {
+            if (status === 'OK') {
+                map.setCenter(results[0].geometry.location);
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location
+                });
+            } 
+        });
+    }
+</script>
+
